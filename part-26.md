@@ -1,4 +1,4 @@
-# Brass Synthesis On A Minimoog
+# SYNTH SECRETS  
 _Original article: [http://www.soundonsound.com/sos/jun01/articles/synthsecrets.pt26.asp][0]_
 
 Last month we looked at how analogue modules can reproduce the sound of a real trumpet. All very well if you own a wall-sized modular system --- but what if your means are more limited?**Gordon Reid **adapts theory to practice with a Minimoog. This is the 26th article in a 63-part series. Read [all parts][1].

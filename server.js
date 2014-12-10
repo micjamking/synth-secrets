@@ -113,7 +113,7 @@ app.get('/', function(req, res){
         var link     = $('<em>').html('Original article: <a href="' + urls[index] + '">' + urls[index] + '</a>');
         var article  = $('.col1 > .TitleBox').nextAll().not(':empty, .introtext, .author, .bodyf, .Published, .col2, .col3').clone();
         var html     = $('<div>').append(title[0]).append('<br/>').append(link).append(article).html();
-        pages[index] = '<li><a href="/blob/master/part-' + (index + 1) + '.md">' + title.text() + '</a></li>';
+        pages[index] = '<li><a href="/part-' + (index + 1) + '.md">' + title.text() + '</a></li>';
         
         createFiles(index, html);
       } else {
