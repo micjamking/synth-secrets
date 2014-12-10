@@ -7,9 +7,10 @@ var request  = require('request');
 var cheerio  = require('cheerio');
 var markdown = require('html-md');
 
-// Business Logic
+// App
 var app = express();
 
+// Model
 var urls = [
   'http://www.soundonsound.com/sos/may99/articles/synthsec.htm', 
   'http://www.soundonsound.com/sos/jun99/articles/synthsecrets.htm', 
@@ -78,54 +79,57 @@ var urls = [
 
 app.get('/', function(req, res){
 
-  var finalMarkDown = '';
+  var pages = [];
   
-  // Loop over array of urls
-  for (var i = 0; i < urls.length; i++){
+  // Creates markdown files from html
+  var createFiles = function(index, html){
+    
+    // Create each pages
+    fs.writeFile('part-' + (index + 1) + '.md', markdown(html), function(err){
+      console.log('Part ' + (index + 1) + ' markdown file successfully written!');
+    });
 
-    // The URL we will scrape from
-    var currentURL = urls[i];
+    // Create table of contents if at the end
+    if ((index + 1 ) === urls.length){
+      var TableOfContents =
+        '<h1>Synth Secrets</h1><br/>' +
+        '<em>Article series on subtractive synthesis from ' + 
+        '<a href="http://www.soundonsound.com/sos/allsynthsecrets.htm">Sound on Sound</a></em><br/>' + 
+        '<h2>Table of Contents</h2><br/><ol>' + pages.join('') + '</ol>';
 
-    // The structure of our request call
-    // The first parameter is our URL
-    // The callback function takes 3 parameters, an error, response status code and the html
-    request(currentURL, function(error, response, html){
-
-      // First we'll check to make sure no errors occurred when making the request
+      fs.writeFile('README.md', markdown(TableOfContents), function(err){
+        console.log('README markdown file successfully written!');
+      });
+    }
+  };
+  
+  // Get the page to scrape
+  var requestPage = function(index){
+ 
+    request(urls[index], function(error, response, html){
       if(!error){
-
-        // Next, we'll utilize the cheerio library on the returned html which will essentially give us jQuery functionality
-        var $ = cheerio.load(html);
-
-        // Grab title
-        var title = $('.TitleBox > .MainTitle')[0];
-
-        // Grab article content, minus intro-text, author byline, and sidebar columns
-        var article = $('.col1 > .TitleBox').nextAll().not(':empty, .introtext, .author, .bodyf, .Published, .col2, .col3').clone();
-
-        // Create DOM element using title and article
-        var html = $('<div>').append(title).append(article).html();
+        var $        = cheerio.load(html);
+        var title    = $('.TitleBox > .MainTitle');
+        var link     = $('<em>').html('Original article: <a href="' + urls[index] + '">' + urls[index] + '</a>');
+        var article  = $('.col1 > .TitleBox').nextAll().not(':empty, .introtext, .author, .bodyf, .Published, .col2, .col3').clone();
+        var html     = $('<div>').append(title[0]).append('<br/>').append(link).append(article).html();
+        pages[index] = '<li><a href="/blob/master/part-' + (index + 1) + '.md">' + title.text() + '</a></li>';
         
-        finalMarkDown += html; 
-      }
-
-      if (i === urls.length){
-        // To write to the system we will use the built in 'fs' library.
-        // In this example we will pass 3 parameters to the writeFile function
-        // Parameter 1 :  output.json - this is what the created filename will be called
-        // Parameter 2 :  markdown(html) - the data to write, here we do an extra step by calling markdown() to convert our html data to markdown syntax
-        // Parameter 3 :  callback function - a callback function to let us know the status of our function
-        fs.writeFile('README.md', markdown(finalMarkDown), function(err){
-          console.log('File successfully written! - Check your project directory for the README.md file');
-        });
+        createFiles(index, html);
+      } else {
+        console.log(error);
       }
     });
+  };
+  
+  // Iterate over urls & fire GET requet
+  for (var i = 0; i < urls.length; i++){
+    requestPage(i);
   }
 
-  // Finally, we'll just send out a message to the browser reminding you that this app does not have a UI.
   res.send('Check your console!');
 });
 
 app.listen('8081')
-console.log('Magic happens on port 8081');
+console.log('Starting screen scrape...');
 exports = module.exports = app;
