@@ -1,0 +1,15 @@
+{
+  "name": "node-web-scrape",
+  "version": "0.0.1",
+  "description": "Scrape web pages",
+  "main": "server.js",
+  "author": "Mike King",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^0.9.0",
+    "cheerio": "^0.18.0",
+    "express": "^4.10.4",
+    "html-md": "^3.0.2",
+    "request": "^2.50.0"
+  }
+}
